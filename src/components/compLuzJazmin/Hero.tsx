@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { eventConfig as localConfig } from "../data/event-config";
+import { eventConfig as localConfig } from "@/data/event-config";
 
 interface HeroProps {
   eventName?: string | null;

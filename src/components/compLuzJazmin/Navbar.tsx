@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart, LayoutDashboard, Users, LogOut } from "lucide-react"; 
 import { useRouter } from "next/navigation";
-import { eventConfig as localConfig } from "../data/event-config";
+import { eventConfig as localConfig } from "@/data/event-config";
 import { useSession, signOut } from "next-auth/react";
 
 interface NavbarProps {

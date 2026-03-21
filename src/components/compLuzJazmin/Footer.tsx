@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { eventConfig } from "../data/event-config";
+import { eventConfig } from "@/data/event-config";
 import { MessageCircle, ArrowUpRight, Instagram } from "lucide-react";
 
 export function Footer() {

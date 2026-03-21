@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import ReproductorMusica from "@/components/reproMusic"
+import ReproductorMusica from "@/components/compLuzJazmin/reproMusic"
 
 export default function Envelope({ children, musicUrl }: { children: React.ReactNode, musicUrl: string }) {
   const [passcode, setPasscode] = useState("")

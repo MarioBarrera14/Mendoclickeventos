@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Disc3, Music, Headset } from "lucide-react";
-import { eventConfig } from "../data/event-config";
+import { eventConfig } from "@/data/event-config";
 
 export function MusicSuggestion() {
   const cancionesUrl = eventConfig.canciones?.formularioUrl || "#";

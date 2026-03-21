@@ -11,7 +11,7 @@ import {
   VolumeX, 
   Clapperboard
 } from "lucide-react";
-import { eventConfig as localConfig } from "../data/event-config";
+import { eventConfig as localConfig } from "@/data/event-config";
 
 // 1. Definimos las props que vienen del servidor
 interface FotoCarouselProps {
