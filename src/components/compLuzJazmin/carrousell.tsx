@@ -28,46 +28,54 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // 2. Procesamos las imágenes: Si hay en DB (JSON), las usamos. Si no, las locales.
+  // 2. Procesamos las imágenes con protección contra undefined
   const fotos = (() => {
-    try {
-      if (images) {
-        const urls = JSON.parse(images);
-        const captions = [
-          "Comenzando el sueño", 
-          "Detalles que ilusionan", 
-          "Cada vez más cerca", 
-          "Mi sesión especial", 
-          "Preparando la magia"
-        ];
-        return urls.map((url: string, i: number) => ({
-          id: i,
-          url: url || localImagenes.hero,
-          caption: captions[i] || "Momento especial"
-        }));
-      }
-    } catch (e) {
-      console.error("Error parseando imágenes:", e);
-    }
-    // Fallback si no hay fotos en DB
-    return [
+    const defaultPhotos = [
       { id: 1, url: localImagenes.hero, caption: "Comenzando el sueño" },
       { id: 2, url: "/img/foto2.jpg", caption: "Detalles que ilusionan" },
       { id: 3, url: "/img/foto3.jpg", caption: "Cada vez más cerca" },
       { id: 4, url: "/img/foto4.jpg", caption: "Mi sesión especial" },
       { id: 5, url: "/img/foto5.jpg", caption: "Preparando la magia" },
     ];
+
+    try {
+      if (images) {
+        const urls = JSON.parse(images);
+        // Filtramos para asegurar que solo existan URLs válidas (no nulas)
+        const validUrls = Array.isArray(urls) 
+          ? urls.filter((u: any) => u !== null && u !== undefined && u !== "") 
+          : [];
+
+        if (validUrls.length > 0) {
+          const captions = [
+            "Comenzando el sueño", 
+            "Detalles que ilusionan", 
+            "Cada vez más cerca", 
+            "Mi sesión especial", 
+            "Preparando la magia"
+          ];
+          return validUrls.map((url: string, i: number) => ({
+            id: i,
+            url: url,
+            caption: captions[i] || "Momento especial"
+          }));
+        }
+      }
+    } catch (e) {
+      console.error("Error parseando imágenes:", e);
+    }
+    return defaultPhotos;
   })();
 
-  // 3. Auto-reproducción del carrusel (Sin el fetch)
+  // 3. Auto-reproducción del carrusel
   useEffect(() => {
-    if (!isHovered) {
+    if (!isHovered && fotos.length > 1) {
       const interval = setInterval(() => {
         nextStep();
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [index, isHovered]);
+  }, [index, isHovered, fotos.length]);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -81,8 +89,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
     }
   };
 
-  const nextStep = () => setIndex((prev) => (prev === fotos.length - 1 ? 0 : prev + 1));
-  const prevStep = () => setIndex((prev) => (prev === 0 ? fotos.length - 1 : prev - 1));
+  const nextStep = () => setIndex((prev) => (prev >= fotos.length - 1 ? 0 : prev + 1));
+  const prevStep = () => setIndex((prev) => (prev <= 0 ? fotos.length - 1 : prev - 1));
+
+  // PARADA DE SEGURIDAD: Si por un microsegundo no hay fotos, no renderizamos el contenido que pide .url
+  if (!fotos || fotos.length === 0 || !fotos[index]) return null;
 
   return (
     <section className="relative py-24 md:py-32 bg-[#fdfdfd] overflow-hidden">

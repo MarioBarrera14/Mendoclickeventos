@@ -5,8 +5,6 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
-  Users,
-  CalendarCheck,
   LogOut,
   ChevronLeft,
   Menu,
@@ -14,15 +12,16 @@ import {
   TicketPlus,
   Home,
   Image,
-  Pencil, // Importamos el icono para Galería
+  Pencil,
+  Heart, // Importamos el icono de Corazón
 } from 'lucide-react';
 import { useState } from 'react';
 
 const menuItems = [
-  { title: 'Volver a Inicio', href: '/', icon: Home },
+  { title: 'Volver a Inicio', href: '/Night_Lights', icon: Home },
   { title: 'Muro', href: '/admin', icon: LayoutDashboard },
   { title: 'Gestión Invitados', href: '/admin/invitados', icon: TicketPlus },
-  { title: 'Galería', href: '/admin/galeria', icon: Image }, // Nuevo botón añadido
+  { title: 'Galería', href: '/admin/galeria', icon: Image },
   { title: 'Configuración', href: '/admin/count', icon: Settings }, 
   { title: 'Editar detalles', href: '/admin/details', icon: Pencil }, 
 ];
@@ -63,10 +62,8 @@ export function AdminSidebar() {
           <div className="flex items-center justify-between p-6 border-b border-gray-50 dark:border-slate-900">
             {!collapsed && (
               <div className="flex items-center space-x-2">
-                {/* Logo minimalista */}
-                <div className="w-8 h-8 bg-zinc-900 dark:bg-white rounded-full flex items-center justify-center">
-                  <div className="w-3 h-3 bg-white dark:bg-black rounded-full" />
-                </div>
+                {/* Logo con Corazón Negro */}
+                <Heart className="h-8 w-8 text-black fill-black dark:text-white dark:fill-white" />
               </div>
             )}
             <button

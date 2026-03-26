@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, LayoutDashboard, Users, LogOut } from "lucide-react"; 
+import { LayoutDashboard, Users, LogOut } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 import { eventConfig as localConfig } from "@/data/event-config";
 import { useSession, signOut } from "next-auth/react";
@@ -12,8 +12,13 @@ interface NavbarProps {
 
 export const Navbar = ({ eventName }: NavbarProps) => {
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const displayName = eventName || localConfig.personal.nombre;
+  const { status } = useSession();
+
+  // PRIORIDAD: 
+  // 1. Nombre que viene de la base de datos (eventName)
+  // 2. Nombre del archivo localConfig (fallback)
+  // 3. Texto genérico por si fallan ambos
+  const displayName = eventName || localConfig.personal.nombre || "Mis XV";
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/40 backdrop-blur-md border-b border-white/10 py-2.5 px-6">
@@ -24,7 +29,7 @@ export const Navbar = ({ eventName }: NavbarProps) => {
           <h1 className="text-white text-xl font-serif italic tracking-widest transition-colors group-hover:text-pink-300">
             {displayName}
           </h1>
-          <span className="block text-[9px] uppercase tracking-[0.3em] font-sans not-italic text-zinc-400">
+       <span className="block text-[9px] uppercase tracking-[0.3em] font-sans not-italic text-rose-400">
             ¡Mis XV años!
           </span>
         </Link>
@@ -32,11 +37,11 @@ export const Navbar = ({ eventName }: NavbarProps) => {
         {/* CONTENEDOR DE ACCESO */}
         <div className="flex items-center gap-6"> 
           
-          {/* 1. BOTÓN USUARIOS (LOGIN) - SOLO VISIBLE SI NO ESTÁ LOGUEADA */}
+          {/* 1. LOGIN - SOLO SI NO ESTÁ AUTENTICADO */}
           {status === "unauthenticated" && (
             <div className="flex flex-col items-center gap-0.5 animate-in fade-in duration-500">
               <button 
-                onClick={() => router.push("/users")}
+                onClick={() => router.push("/users/loginManager")}
                 className="group relative flex items-center justify-center w-10 h-10 
                            bg-white/5 border border-white/10 hover:border-indigo-400/50
                            rounded-full text-white transition-all duration-300
@@ -50,13 +55,12 @@ export const Navbar = ({ eventName }: NavbarProps) => {
             </div>
           )}
 
-          {/* 2. BOTONES SOLO PARA CUANDO ESTÁ LOGUEADA */}
+          {/* 2. DASHBOARD Y LOGOUT - SOLO SI ESTÁ AUTENTICADO */}
           {status === "authenticated" && (
             <>
-              {/* BOTÓN DASHBOARD (ADMIN) */}
               <div className="flex flex-col items-center gap-0.5 animate-in slide-in-from-right-4 duration-500">
                 <button 
-                  onClick={() => router.push("/admin")}
+                  onClick={() => router.push("/admin/count")}
                   className="group relative flex items-center justify-center w-10 h-10 
                              bg-white/5 border border-white/10 hover:border-pink-400/50
                              rounded-full text-white transition-all duration-300
@@ -69,10 +73,9 @@ export const Navbar = ({ eventName }: NavbarProps) => {
                 </span>
               </div>
 
-              {/* BOTÓN SALIR */}
               <div className="flex flex-col items-center gap-0.5 animate-in slide-in-from-right-2 duration-500">
                 <button 
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => signOut()}
                   className="group relative flex items-center justify-center w-10 h-10 
                              bg-white/5 border border-white/10 hover:border-red-400/50
                              rounded-full text-white transition-all duration-300

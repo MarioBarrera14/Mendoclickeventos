@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,42 +18,40 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         });
 
-        if (!user) throw new Error("Usuario no encontrado");
+        if (!user) return null;
 
-        const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-        if (!passwordMatch) throw new Error("Contraseña incorrecta");
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
 
-        // IMPORTANTE: Retornamos un objeto que NextAuth entienda
-        // Convertimos el ID a string y mapeamos 'nombre' a 'name'
-        return { 
-          id: String(user.id), 
-          name: user.nombre, 
-          email: user.email 
+        return {
+          id: user.id,
+          email: user.email,
+          nombre: user.nombre,
+          role: user.role,
+          slug: user.slug,
         };
       }
     })
   ],
   callbacks: {
-    // Este paso es vital para que el ID se guarde en el Token
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       if (user) {
+        token.role = user.role;
+        token.slug = user.slug;
         token.id = user.id;
       }
       return token;
     },
-    // Este paso pasa el ID del Token a la Sesión (para usar en el cliente)
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (session.user) {
-        (session.user as any).id = token.id;
+        session.user.role = token.role;
+        session.user.slug = token.slug;
+        session.user.id = token.id;
       }
       return session;
-    },
+    }
   },
-  pages: {
-    signIn: "/users", 
-  },
-  session: {
-    strategy: "jwt",
-  },
+  pages: { signIn: "/users/loginManager" },
+  session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
 };

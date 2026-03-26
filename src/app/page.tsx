@@ -1,201 +1,241 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion, Variants } from 'framer-motion';
-import { FiGift, FiMapPin, FiHeart, FiStar, FiCalendar } from 'react-icons/fi';
-import { IconType } from 'react-icons';
-
-// --- TIPOS ---
-interface Feature {
-  icon: IconType;
-  text: string;
-}
-
-interface TestData {
-  mainTitlePart1: string;
-  mainTitlePart2: string;
-  subTitle: string;
-  heroDescription: string;
-  ctaButton: string;
-  whatsappLink: string;
-  footerText: string;
-}
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FiGift, 
+  FiMapPin, 
+  FiHeart, 
+  FiStar, 
+  FiCalendar, 
+  FiArrowRight, 
+  FiShield, 
+  FiUser,
+  FiLogOut,
+  FiMenu,
+  FiX
+} from 'react-icons/fi';
 
 // --- CONFIGURACIÓN DE DATOS ---
-const features: Feature[] = [
-  { icon: FiStar, text: "Filtros de Fotos tipo Instagram" },
-  { icon: FiHeart, text: "Confirmación de Asistencia (WhatsApp)" },
-  { icon: FiMapPin, text: "Ubicación en Google Maps" },
-  { icon: FiCalendar, text: "Integración con Calendario" },
-  { icon: FiGift, text: "Mesa de Regalos & Dress Code" },
+const features = [
+  { icon: FiStar, text: "Filtros Pro", desc: "Estilo Instagram" },
+  { icon: FiHeart, text: "Asistencia", desc: "Confirmación Directa" },
+  { icon: FiMapPin, text: "Maps", desc: "Ubicación GPS" },
+  { icon: FiCalendar, text: "Calendar", desc: "Save the Date" },
+  { icon: FiGift, text: "Regalos", desc: "Dress Code & Mesa" },
 ];
 
-const testData: TestData = {
+const testData = {
   mainTitlePart1: "Celebraciones",
   mainTitlePart2: "Inolvidables.",
   subTitle: "Venta de Invitaciones Digitales Premium",
-  heroDescription: "Sorprende a tus invitados desde el primer momento con una invitación digital, moderna e interactiva. Diseños únicos que reflejan tu estilo.",
-  ctaButton: "Ver Diseños Exclusivos",
+  heroDescription: "Sorprende a tus invitados con una experiencia interactiva. Diseños de vanguardia que elevan el nivel de tu evento desde el primer clic.",
+  ctaButton: "Ver Catálogo 2026",
   whatsappLink: "https://wa.me/tu-numero-aqui", 
-  footerText: `© ${new Date().getFullYear()} MendoClick. Hecho con ♡ en Mendoza.`,
-};
-
-const fadeInUp: Variants = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
+  footerText: `© ${new Date().getFullYear()} MendoClick. Mendoza, Argentina.`,
 };
 
 export default function LandingPage(): JSX.Element {
+  const [isManager, setIsManager] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Verificamos si hay sesión al cargar la página
+  useEffect(() => {
+    const session = localStorage.getItem("manager_session");
+    if (session === "active") {
+      setIsManager(true);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("manager_session");
+    setIsManager(false);
+    window.location.reload(); // Recargamos para limpiar estados
+  };
+
   return (
-    <div className="min-h-screen bg-[#fcfcfc]">
+    <div className="min-h-screen bg-white text-zinc-950 selection:bg-rose-100 selection:text-rose-600 font-sans overflow-x-hidden">
       <Head>
-        <title>MendoClick | Invitaciones Premium</title>
+        <title>MendoClick | Digital Invitations</title>
       </Head>
 
       {/* --- NAVBAR --- */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-gray-900">
-            Mendo<span className="font-light text-rose-500">Click</span>
+      <nav className="fixed top-0 left-0 w-full z-[100] bg-white/80 backdrop-blur-xl border-b border-zinc-100 px-4 md:px-0">
+        <div className="container mx-auto py-5 flex justify-between items-center">
+          {/* LOGO */}
+          <Link href="/" className="text-xl font-black tracking-tighter uppercase italic z-10">
+            Mendo<span className="text-rose-500 underline decoration-2 underline-offset-4 font-black">Click</span>
           </Link>
-          <div className="flex gap-4 items-center">
-            <a href="#designs" className="text-sm font-medium text-gray-700 hover:text-rose-600 transition">Diseños</a>
-            <motion.a 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href={testData.whatsappLink} 
-              className="bg-gray-900 text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide uppercase shadow-sm"
-            >
-              Comprar
-            </motion.a>
+          
+          {/* ACCESOS DESKTOP */}
+          <div className="hidden lg:flex items-center gap-8">
+            <div className="flex gap-8 text-[10px] font-black uppercase tracking-[0.2em]">
+              <a href="#designs" className="hover:text-rose-500 transition">Modelos</a>
+              <a href="#features" className="hover:text-rose-500 transition">Funciones</a>
+            </div>
+
+            <div className="flex items-center gap-6 border-l border-zinc-100 pl-8">
+              {isManager && (
+                <Link 
+                  href="/manager/dashboard" 
+                  className="flex items-center gap-2 bg-rose-500 text-white px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-rose-200 hover:bg-zinc-950 transition-all"
+                >
+                  <FiShield size={14} /> Manager
+                </Link>
+              )}
+
+              {!isManager ? (
+                <Link href="/users/loginManager" className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-950 transition-colors">
+                  <FiUser size={14} className="text-rose-500" /> Login
+                </Link>
+              ) : (
+                <button onClick={handleLogout} className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-rose-500">
+                  <FiLogOut size={14} /> Salir
+                </button>
+              )}
+
+              <motion.a 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href={testData.whatsappLink} 
+                className="bg-zinc-950 text-white px-8 py-3 rounded-full text-[9px] font-black uppercase tracking-[0.2em] hover:bg-rose-600 transition-colors"
+              >
+                Comenzar
+              </motion.a>
+            </div>
           </div>
+
+          {/* MENU MOBILE TOGGLE */}
+          <button className="lg:hidden z-10 p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
         </div>
+
+        {/* MOBILE MENU OVERLAY */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              className="fixed inset-0 bg-white z-[90] flex flex-col p-10 pt-32 gap-8 lg:hidden"
+            >
+              <a href="#designs" onClick={() => setIsMobileMenuOpen(false)} className="text-4xl font-black uppercase italic">Modelos</a>
+              <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-4xl font-black uppercase italic">Funciones</a>
+              <hr />
+              {isManager && (
+                <Link href="/manager/dashboard" className="text-2xl font-black text-rose-500 uppercase">Dashboard Manager</Link>
+              )}
+              <Link href={isManager ? "/" : "/login"} onClick={() => isManager && handleLogout()} className="text-2xl font-black uppercase">
+                {isManager ? "Cerrar Sesión" : "Login Manager"}
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* --- HERO --- */}
-      <header className="relative pt-36 pb-20 bg-white overflow-hidden">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <motion.div initial="initial" animate="animate" variants={fadeInUp} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 bg-rose-50 text-rose-600 px-4 py-1.5 rounded-full border border-rose-100 mb-6">
-              <FiStar className="text-rose-400" />
-              <span className="text-xs font-semibold uppercase tracking-wider">{testData.subTitle}</span>
+      <header className="relative pt-32 md:pt-44 pb-12 md:pb-24 overflow-hidden">
+        <div className="absolute top-20 right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-rose-50 rounded-full blur-[120px] -z-10 opacity-60" />
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 mb-6 md:mb-8">
+              <div className="h-[1px] w-8 md:w-12 bg-rose-500" />
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-rose-500">{testData.subTitle}</span>
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-5xl md:text-[100px] font-black leading-[0.95] md:leading-[0.9] tracking-tighter mb-8 md:mb-10 uppercase italic">
+              {testData.mainTitlePart1} <br />
+              <span className="text-transparent stroke-text" style={{ WebkitTextStroke: '1px #18181b' }}>
+                {testData.mainTitlePart2}
+              </span>
+            </motion.h1>
+            <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-end">
+              <p className="text-base md:text-lg text-zinc-500 font-medium leading-relaxed">{testData.heroDescription}</p>
+              <Link href="#designs" className="group bg-zinc-950 text-white px-8 py-5 md:py-6 rounded-2xl font-black flex items-center justify-between hover:bg-rose-600 transition-all uppercase text-[11px] tracking-widest shadow-xl shadow-zinc-200">
+                {testData.ctaButton}
+                <FiArrowRight className="group-hover:translate-x-2 transition-transform" size={20} />
+              </Link>
             </div>
-            <h1 className="text-5xl md:text-7xl font-serif leading-[1.1] text-gray-950 mb-6">
-              {testData.mainTitlePart1} <span className="italic text-rose-500">{testData.mainTitlePart2}</span>
-            </h1>
-            <p className="text-lg text-gray-600 font-light mb-10 max-w-lg">
-              {testData.heroDescription}
-            </p>
-            <Link href="#designs" className="bg-gray-950 text-white px-10 py-4 rounded-full text-sm font-semibold tracking-wide uppercase shadow-lg hover:bg-gray-800 transition block sm:inline-block text-center">
-              {testData.ctaButton}
-            </Link>
-          </motion.div>
-        <motion.div 
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="relative w-full max-w-5xl mx-auto overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl border border-gray-200"
->
-  <div className="aspect-video sm:aspect-[16/10] md:aspect-[4/3] lg:aspect-video">
-    <img 
-      src="/prese1.png" 
-      className="w-full h-full object-contain md:object-cover bg-gray-50" 
-      alt="Hero Demo" 
-    />
-  </div>
-</motion.div>
+          </div>
         </div>
       </header>
 
-      {/* --- CARACTERÍSTICAS --- */}
-      <section className="py-16 bg-gray-50 border-y border-gray-100">
-        <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-5 gap-6">
-          {features.map((f, i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 text-center flex flex-col items-center">
-              <f.icon className="size-6 text-rose-500 mb-3" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-800 leading-tight">{f.text}</p>
-            </div>
-          ))}
+      {/* --- MOCKUP DISPLAY --- */}
+      <section className="px-4 md:px-6 mb-20 md:mb-32">
+        <div className="relative aspect-video md:aspect-[21/9] w-full bg-zinc-100 rounded-3xl md:rounded-[40px] overflow-hidden border border-zinc-200">
+          <img src="/prese1.png" className="w-full h-full object-cover" alt="MendoClick" />
+        </div>
+      </section>
+
+      {/* --- FEATURES BENTO --- */}
+      <section id="features" className="py-20 bg-zinc-50 border-y border-zinc-100">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {features.map((f, i) => (
+              <motion.div key={i} whileHover={{ y: -5 }} className="bg-white p-8 rounded-[32px] border border-zinc-100 shadow-sm flex flex-col justify-between h-44 md:h-48">
+                <div className="bg-rose-50 w-12 h-12 rounded-2xl flex items-center justify-center text-rose-500"><f.icon size={24} /></div>
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">{f.desc}</p>
+                  <p className="font-bold text-zinc-900 leading-tight uppercase italic">{f.text}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* --- CATÁLOGO --- */}
-      <section id="designs" className="py-24 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-serif text-gray-950 mb-16 italic">Nuestros Modelos</h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
-            
-            {/* MODELO 1: BLANCO Y NEGRO (Ruta Demo1) */}
-            <motion.div whileHover={{ y: -10 }} className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-              <div className="aspect-[3/4] relative">
-                <img src="/Demo1.png" className="w-full h-full object-cover" alt="Black & White" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-6 text-left">
-                  <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Modelo #1</span>
-                  <h3 className="text-xl font-serif text-white">Classic Night Lights</h3>
+      <section id="designs" className="py-24 md:py-32">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-6">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic">Catálogo <span className="text-rose-500">2026</span></h2>
+            <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em]">Exclusividad interactiva</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {[
+              { id: '01', title: 'Night Lights', img: '/Demo1.png', link: '/Night_Lights' },
+              { id: '02', title: 'Neon Party', img: '/Demos2.png', link: '/Neon_Party' },
+              { id: '03', title: 'Golden B-Day', img: '/Demo3.png', link: '/Golden_B_Day' }
+            ].map((item) => (
+              <div key={item.id} className="group relative bg-zinc-100 rounded-[35px] md:rounded-[40px] overflow-hidden border border-zinc-200">
+                <div className="aspect-[3/4] overflow-hidden">
+                  <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.title} />
+                </div>
+                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 bg-gradient-to-t from-black via-black/60 to-transparent">
+                  <span className="text-[9px] font-black text-rose-400 uppercase tracking-[0.4em] mb-2 block">MNDCLK {item.id}</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase italic mb-6">{item.title}</h3>
+                  <Link href={item.link} className="inline-flex items-center gap-3 bg-white text-zinc-950 px-6 py-3 md:px-8 md:py-4 rounded-xl font-black text-[10px] tracking-widest hover:bg-rose-500 hover:text-white transition-all uppercase">
+                    PROBAR DEMO <FiArrowRight />
+                  </Link>
                 </div>
               </div>
-              <div className="p-6 flex justify-between items-center bg-[#111]">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Elegante & B&W</span>
-                <Link href="/Demo1" className="bg-white text-black px-6 py-2 rounded-full text-[10px] font-black hover:bg-rose-500 hover:text-white transition uppercase">
-                  Ver Demo
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* MODELO 2: DISCO (Ruta Demo2) */}
-            <motion.div whileHover={{ y: -10 }} className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-              <div className="aspect-[3/4] relative">
-                <img src="/Demos2.png" className="w-full h-full object-cover" alt="Disco Party" />
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-6 text-left">
-                  <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest">Modelo #2</span>
-                  <h3 className="text-xl font-serif text-white">Neon Party XV</h3>
-                </div>
-              </div>
-              <div className="p-6 flex justify-between items-center bg-[#2d1b4d]">
-                <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest italic">Interactivo + Music</span>
-                <Link href="/Demo2" className="bg-purple-500 text-white px-6 py-2 rounded-full text-[10px] font-black hover:bg-white hover:text-purple-900 transition uppercase">
-                  Ver Demo
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* MODELO 3: DORADO (Ruta Demo3) */}
-            <motion.div whileHover={{ y: -10 }} className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-              <div className="aspect-[3/4] relative">
-                <img src="/Demo3.png" className="w-full h-full object-cover" alt="Gold Luxury" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#4a3a1e]/90 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-6 text-left">
-                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Modelo #3</span>
-                  <h3 className="text-xl font-serif text-white">Golden Birthday</h3>
-                </div>
-              </div>
-              <div className="p-6 flex justify-between items-center bg-[#fdfaf1]">
-                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest italic">Classic & Royal</span>
-                <Link href="/Demo3" className="bg-amber-600 text-white px-6 py-2 rounded-full text-[10px] font-black hover:bg-amber-700 transition uppercase">
-                  Ver Demo
-                </Link>
-              </div>
-            </motion.div>
-
+            ))}
           </div>
         </div>
       </section>
-        {/* --- FOOTER --- */}
-        <footer className="py-20 bg-gray-50 border-t border-gray-100 text-center">
-          <div className="container mx-auto px-4">
-            <a href="#" className="text-xl font-semibold tracking-tight text-gray-900 mb-4 block">
-              Mendo<span className="font-light text-rose-500">Click</span>
-            </a>
-            <p className="text-sm text-gray-500 font-light max-w-sm mx-auto mb-8">
-              Creando invitaciones que quedan en el corazón de tus invitados para siempre.
-            </p>
-            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{testData.footerText}</p>
-          </div>
-        </footer>
-      </div>
+
+      {/* --- FOOTER --- */}
+      <footer className="py-24 bg-zinc-950 text-white text-center relative overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10">
+          <Link href="/" className="text-2xl font-black tracking-tighter uppercase italic mb-6 block">
+            Mendo<span className="text-rose-500 underline underline-offset-8 decoration-1">Click</span>
+          </Link>
+          <p className="text-zinc-500 text-[11px] font-bold uppercase tracking-widest max-w-xs mx-auto mb-10">
+            Transformando eventos en experiencias digitales de clase mundial.
+          </p>
+          <p className="text-[9px] text-zinc-700 font-black uppercase tracking-[0.5em]">{testData.footerText}</p>
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        .stroke-text {
+          paint-order: stroke fill;
+          -webkit-text-fill-color: transparent;
+        }
+        html { scroll-behavior: smooth; }
+      `}</style>
+    </div>
   );
 }

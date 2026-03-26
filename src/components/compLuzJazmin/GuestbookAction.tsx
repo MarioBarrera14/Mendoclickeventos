@@ -1,14 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Disc3, Music, Headset } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Disc3, Music, Headset, X, Send } from "lucide-react";
 import { eventConfig } from "@/data/event-config";
 
 export function MusicSuggestion() {
-  const cancionesUrl = eventConfig.canciones?.formularioUrl || "#";
+  const [isOpen, setIsOpen] = useState(false);
+  const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
 
   // Configuración para las barras del ecualizador
   const bars = Array.from({ length: 40 });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSongs((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
     <section className="relative py-32 bg-black overflow-hidden">
@@ -53,7 +60,7 @@ export function MusicSuggestion() {
         ))}
       </div>
 
-      {/* Fondo de Ondas Animadas (Tu código original) */}
+      {/* Fondo de Ondas Animadas */}
       <div className="absolute inset-0 z-0 opacity-20">
         <svg viewBox="0 0 1440 320" className="absolute bottom-0 w-full h-full" preserveAspectRatio="none">
           <motion.path
@@ -71,8 +78,7 @@ export function MusicSuggestion() {
       </div>
 
       <div className="container mx-auto px-6 relative z-30 text-center flex flex-col items-center">
-        
-        {/* ÍCONO PRINCIPAL - Disco Girando + Aura */}
+        {/* ÍCONO PRINCIPAL */}
         <div className="relative mb-12">
           <motion.div
             animate={{ rotate: 360 }}
@@ -81,7 +87,6 @@ export function MusicSuggestion() {
           >
             <Disc3 className="w-20 h-20 md:w-28 md:h-28 stroke-[0.5px]" />
           </motion.div>
-          {/* Nota musical saltarina */}
           <motion.div
             animate={{ y: [0, -15, 0], opacity: [0, 1, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
@@ -108,40 +113,72 @@ export function MusicSuggestion() {
           </p>
         </motion.div>
 
-        {/* BOTÓN ESTILO "PLAYER" */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <a
-            href={cancionesUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+        {/* BOTÓN QUE ABRE EL MODAL */}
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <button
+            onClick={() => setIsOpen(true)}
             className="group relative inline-flex items-center gap-4 px-12 py-5 bg-white text-black font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase rounded-full transition-all duration-500 overflow-hidden"
           >
-            {/* Efecto de brillo al pasar el mouse */}
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
-            
             <Headset className="w-5 h-5" />
             SUGERÍ TU TEMA ACÁ
-          </a>
+          </button>
         </motion.div>
 
         <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-white/20 to-transparent mt-24 mx-auto" />
       </div>
 
+      {/* MODAL DEL FORMULARIO */}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-[#121212] border border-white/10 p-8 rounded-[2rem] shadow-2xl"
+            >
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="text-center mb-8">
+                <span className="text-[9px] tracking-[0.4em] text-rose-300 uppercase font-bold mb-2 block">Sugerencias</span>
+                <h4 className="text-2xl font-serif italic text-white">¿Qué vamos a bailar?</h4>
+              </div>
+
+              <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsOpen(false); }}>
+                {[1, 2, 3].map((num) => (
+                  <div key={num} className="relative">
+                    <label className="text-[9px] uppercase tracking-widest text-white/30 mb-2 block">Tema {num}</label>
+                    <input
+                      type="text"
+                      name={`tema${num}`}
+                      onChange={handleChange}
+                      placeholder="Nombre de la canción..."
+                      className="w-full bg-transparent border-b border-white/10 py-2 outline-none focus:border-rose-500 transition-colors text-white text-sm"
+                    />
+                  </div>
+                ))}
+                <button
+                  type="submit"
+                  className="w-full bg-white text-black py-4 rounded-full font-bold text-[10px] tracking-widest uppercase mt-4 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center gap-2"
+                >
+                  ENVIAR <Send size={14} />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* ONDA INFERIOR */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20">
-        <svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="relative block w-full h-[60px] md:h-[120px]"
-          style={{ transform: 'rotate(180deg)' }}
-        >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            fill="#ffffff"
-          ></path>
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[60px] md:h-[120px]" style={{ transform: 'rotate(180deg)' }}>
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#ffffff"></path>
         </svg>
       </div>
     </section>

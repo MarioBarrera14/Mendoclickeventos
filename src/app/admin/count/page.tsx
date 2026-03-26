@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save, Calendar, Clock, RefreshCw, User, MapPin, Link as LinkIcon, Home, Loader2, Trash2 } from "lucide-react";
+import { Save, Calendar, Clock, User, MapPin, Link as LinkIcon, Home, Loader2, Trash2 } from "lucide-react";
+// Importación de tus Server Actions
 import { getEventConfig, updateEventConfig } from "@/app/api/admin/count/route";
 
 // --- IMPORTACIÓN DE SWEETALERT2 ---
@@ -20,12 +21,12 @@ export default function CountConfigPage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Estados de los campos
-  const [eventDate, setEventDate] = useState<string>("2026-12-19");
-  const [eventTime, setEventTime] = useState<string>("21:00");
-  const [eventName, setEventName] = useState<string>("Luz Jazmín"); 
-  const [venueName, setVenueName] = useState<string>("Howard Johnson");
-  const [venueAddress, setVenueAddress] = useState<string>("RP11 km 400, Cariló");
+  // Estados de los campos (Inicializados vacíos para recibir la data de la DB)
+  const [eventDate, setEventDate] = useState<string>("");
+  const [eventTime, setEventTime] = useState<string>("");
+  const [eventName, setEventName] = useState<string>(""); 
+  const [venueName, setVenueName] = useState<string>("");
+  const [venueAddress, setVenueAddress] = useState<string>("");
   const [mapLink, setMapLink] = useState<string>("");
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, mins: 0, secs: 0 });
@@ -74,25 +75,32 @@ export default function CountConfigPage() {
     });
   };
 
-  // 1. CARGAR DATOS DE LA BASE DE DATOS
+  // 1. CARGAR DATOS DE LA BASE DE DATOS AL MONTAR
   useEffect(() => {
     async function fetchData() {
-      const config = await getEventConfig();
-      if (config) {
-        setEventDate(config.eventDate);
-        setEventTime(config.eventTime);
-        setEventName(config.eventName || "Luz Jazmín"); 
-        setVenueName(config.venueName);
-        setVenueAddress(config.venueAddress);
-        setMapLink(config.mapLink);
+      try {
+        const config = await getEventConfig();
+        if (config) {
+          setEventDate(config.eventDate || "2026-12-19");
+          setEventTime(config.eventTime || "21:00");
+          setEventName(config.eventName || "Luz Jazmín"); 
+          setVenueName(config.venueName || "Howard Johnson");
+          setVenueAddress(config.venueAddress || "RP11 km 400, Cariló");
+          setMapLink(config.mapLink || "");
+        }
+      } catch (error) {
+        console.error("Error cargando configuración:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchData();
   }, []);
 
   // 2. LÓGICA DEL CONTADOR
   useEffect(() => {
+    if (!eventDate || !eventTime) return;
+
     const timer = setInterval(() => {
       const target = new Date(`${eventDate}T${eventTime}:00`);
       const now = new Date();
@@ -115,21 +123,26 @@ export default function CountConfigPage() {
   // 3. GUARDAR EN LA BASE DE DATOS
   const handleSave = async () => {
     setIsSaving(true);
-    const result = await updateEventConfig({
-      eventName: eventName,
-      eventDate,
-      eventTime,
-      venueName,
-      venueAddress,
-      mapLink,
-    });
+    try {
+      const result = await updateEventConfig({
+        eventName,
+        eventDate,
+        eventTime,
+        venueName,
+        venueAddress,
+        mapLink,
+      });
 
-    if (result.success) {
-      showNotification("¡Éxito!", "Configuración guardada en la base de datos 🎉", "success");
-    } else {
-      showNotification("¡Ups!", "Error al guardar. Verifica la consola.", "error");
+      if (result.success) {
+        showNotification("¡Éxito!", "Configuración guardada en la base de datos 🎉", "success");
+      } else {
+        showNotification("¡Ups!", "No se pudo guardar la configuración.", "error");
+      }
+    } catch (error) {
+      showNotification("Error", "Ocurrió un fallo en la conexión.", "error");
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   if (loading) {
@@ -158,46 +171,76 @@ export default function CountConfigPage() {
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <User className="h-3 w-3" /> Nombre de la Agasajada
               </label>
-              <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" />
+              <input 
+                type="text" 
+                value={eventName} 
+                onChange={(e) => setEventName(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <Calendar className="h-3 w-3" /> Fecha
               </label>
-              <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium" />
+              <input 
+                type="date" 
+                value={eventDate} 
+                onChange={(e) => setEventDate(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <Clock className="h-3 w-3" /> Hora
               </label>
-              <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium" />
+              <input 
+                type="time" 
+                value={eventTime} 
+                onChange={(e) => setEventTime(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <Home className="h-3 w-3" /> Nombre del Salón
               </label>
-              <input type="text" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium" />
+              <input 
+                type="text" 
+                value={venueName} 
+                onChange={(e) => setVenueName(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
 
             <div>
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <MapPin className="h-3 w-3" /> Dirección (Texto)
               </label>
-              <input type="text" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium" />
+              <input 
+                type="text" 
+                value={venueAddress} 
+                onChange={(e) => setVenueAddress(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
 
             <div className="md:col-span-2">
               <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
                 <LinkIcon className="h-3 w-3" /> Link de Google Maps
               </label>
-              <input type="url" placeholder="http://..." value={mapLink} onChange={(e) => setMapLink(e.target.value)} className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium" />
+              <input 
+                type="url" 
+                placeholder="https://goo.gl/maps/..." 
+                value={mapLink} 
+                onChange={(e) => setMapLink(e.target.value)} 
+                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
+              />
             </div>
           </div>
 
-          {/* --- CONTENEDOR DE BOTONES --- */}
           <div className="flex gap-3 mt-2">
             <button 
               onClick={handleSave} 
@@ -233,7 +276,12 @@ export default function CountConfigPage() {
 
           <div className="bg-zinc-900 text-white p-8 rounded-3xl flex flex-col items-center gap-6">
              <div className="grid grid-cols-4 gap-6 w-full text-center">
-                {[{ label: 'Días', value: timeLeft.days }, { label: 'Hrs', value: timeLeft.hours }, { label: 'Min', value: timeLeft.mins }, { label: 'Seg', value: timeLeft.secs }].map((unit, i) => (
+                {[
+                  { label: 'Días', value: timeLeft.days }, 
+                  { label: 'Hrs', value: timeLeft.hours }, 
+                  { label: 'Min', value: timeLeft.mins }, 
+                  { label: 'Seg', value: timeLeft.secs }
+                ].map((unit, i) => (
                   <div key={i} className="flex flex-col">
                     <span className="text-2xl font-serif italic font-bold">{unit.value}</span>
                     <span className="text-[8px] uppercase tracking-tighter opacity-50">{unit.label}</span>

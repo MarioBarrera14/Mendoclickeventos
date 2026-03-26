@@ -1,5 +1,5 @@
 
-import { AdminSidebar } from '@/components/admin-sidebar';
+import { AdminSidebar } from '@/components/compLuzJazmin/admin-sidebar';
 
 export default async function AdminLayout({
   children,
