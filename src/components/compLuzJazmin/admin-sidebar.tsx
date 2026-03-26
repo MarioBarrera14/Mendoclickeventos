@@ -13,7 +13,8 @@ import {
   Home,
   Image,
   Pencil,
-  Heart, // Importamos el icono de Corazón
+  Heart,
+  Music, // Importamos el icono de Corazón
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,6 +25,7 @@ const menuItems = [
   { title: 'Galería', href: '/admin/galeria', icon: Image },
   { title: 'Configuración', href: '/admin/count', icon: Settings }, 
   { title: 'Editar detalles', href: '/admin/details', icon: Pencil }, 
+  { title: 'Muro Musical', href: '/admin/sugeridos', icon: Music },
 ];
 
 export function AdminSidebar() {

@@ -98,7 +98,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
         {/* Pasamos el config.id para que las sugerencias y el RSVP 
           queden vinculados a este evento específico en la base de datos.
         */}
-        <MusicSuggestion/>    
+        <MusicSuggestion eventId={config.id} />    
         <RSVP />
         
         <Footer />
