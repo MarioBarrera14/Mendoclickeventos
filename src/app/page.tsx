@@ -87,7 +87,7 @@ export default function LandingPage(): JSX.Element {
               )}
 
               {!isManager ? (
-                <Link href="/users/loginManager" className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-950 transition-colors">
+                <Link href="/login" className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-950 transition-colors">
                   <FiUser size={14} className="text-rose-500" /> Login
                 </Link>
               ) : (
@@ -195,9 +195,9 @@ export default function LandingPage(): JSX.Element {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {[
-              { id: '01', title: 'Night Lights', img: '/Demo1.png', link: '/Night_Lights' },
-              { id: '02', title: 'Neon Party', img: '/Demos2.png', link: '/Neon_Party' },
-              { id: '03', title: 'Golden B-Day', img: '/Demo3.png', link: '/Golden_B_Day' }
+              { id: '01', title: 'Night Lights', img: '/Demo1.png', link: '/demo/night-lights' },
+              { id: '02', title: 'Neon Party', img: '/Demos2.png', link: '/demo/neon-party' },
+              { id: '03', title: 'Golden B-Day', img: '/Demo3.png', link: '/demo/golden-bday' }
             ].map((item) => (
               <div key={item.id} className="group relative bg-zinc-100 rounded-[35px] md:rounded-[40px] overflow-hidden border border-zinc-200">
                 <div className="aspect-[3/4] overflow-hidden">

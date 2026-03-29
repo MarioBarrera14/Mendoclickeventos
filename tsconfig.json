@@ -20,7 +20,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/types": ["./src/types"],
+      "@/services": ["./src/services"],
+      "@/actions": ["./src/actions"],
+      "@/hooks": ["./src/hooks"],
+      "@/constants": ["./src/constants"]
     }
   },
   "include": [
